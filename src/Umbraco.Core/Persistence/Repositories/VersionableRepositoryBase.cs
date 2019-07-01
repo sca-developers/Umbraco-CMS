@@ -536,7 +536,7 @@ namespace Umbraco.Core.Persistence.Repositories
             // this now since we cannot execute another reader inside of reading the property data.
             var preValsSql = new Sql(@"SELECT a.id, a.value, a.sortorder, a.alias, a.datatypeNodeId
 FROM cmsDataTypePreValues a
-WHERE EXISTS(
+INNER JOIN (
     SELECT DISTINCT b.id as preValIdInner
     FROM cmsDataTypePreValues b
 	INNER JOIN cmsPropertyType
@@ -544,7 +544,7 @@ WHERE EXISTS(
     INNER JOIN 
 	    (" + string.Format(parsedOriginalSql, "cmsContent.contentType") + @") as docData
     ON cmsPropertyType.contentTypeId = docData.contentType
-    WHERE a.id = b.id)", docSql.Arguments);
+    ) AS [c] ON a.id = c.preValIdInner", docSql.Arguments);
 
             var allPreValues = Database.Fetch<DataTypePreValueDto>(preValsSql);
 
